@@ -1,72 +1,72 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('puzzle-container');
-    let pieces = [];
+document.addEventListener('DOMContentLoaded', () => {
+    const puzzleContainer = document.getElementById('puzzle-container');
+    const winAudio = document.getElementById('win-audio');
+    const imageOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-    // 预加载并初始化拼图块
-    for (let i = 1; i <= 9; i++) {
-        const img = new Image();
-        img.src = `images/${i}.jpg`;
-
-        const piece = document.createElement('div');
-        piece.className = 'puzzle-piece';
-        piece.style.backgroundImage = `url('images/${i}.jpg')`;
-        piece.setAttribute('data-id', i);
-        pieces.push(piece);
-    }
-    
-    // 打乱拼图块后添加到容器
-    shuffleArray(pieces).forEach(piece => {
-        container.appendChild(piece);
-        piece.addEventListener('dragstart', handleDragStart, false);
-        piece.addEventListener('dragover', handleDragOver, false);
-        piece.addEventListener('drop', handleDrop, false);
-    });
-
-    let dragSrcEl = null;
-
-    function shuffleArray(array) {
+    // 随机打乱图片顺序
+    function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
-        return array;
     }
 
-    function handleDragStart(e) {
-        dragSrcEl = this;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.outerHTML);
-        this.style.opacity = '0.6';
+    // 初始化拼图
+    function initPuzzle() {
+        shuffle(imageOrder);
+        puzzleContainer.innerHTML = '';
+        imageOrder.forEach(num => {
+            const img = document.createElement('img');
+            img.src = `images/${num}.jpg`;
+            img.classList.add('puzzle-piece');
+            img.draggable = true;
+            img.dataset.order = num;
+            puzzleContainer.appendChild(img);
+        });
     }
 
-    function handleDragOver(e) {
-        e.preventDefault();
-        return false;
-    }
-
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
+    // 检查拼图是否完成
+    function checkWin() {
+        const pieces = document.querySelectorAll('.puzzle-piece');
+        for (let i = 0; i < pieces.length; i++) {
+            if (pieces[i].dataset.order != i + 1) {
+                return false;
+            }
         }
-
-        if (dragSrcEl !== this) {
-            const srcBackground = dragSrcEl.style.backgroundImage;
-            dragSrcEl.style.backgroundImage = this.style.backgroundImage;
-            this.style.backgroundImage = srcBackground;
-
-            // Check whether completed
-            checkIfCompleted();
-        }
-        this.style.opacity = '1';
-        return false;
+        return true;
     }
 
-    function checkIfCompleted() {
-        const currentPlayerOrder = Array.from(container.children).map(elem => parseInt(elem.getAttribute('data-id')));
-        const isCompleted = currentPlayerOrder.every((val, idx) => val === idx + 1);
-
-        if (isCompleted) {
-            document.getElementById('winning-music').play();
-        }
+    // 交换图片位置
+    function swapImages(img1, img2) {
+        const tempSrc = img1.src;
+        const tempOrder = img1.dataset.order;
+        img1.src = img2.src;
+        img1.dataset.order = img2.dataset.order;
+        img2.src = tempSrc;
+        img2.dataset.order = tempOrder;
     }
+
+    // 拖放事件处理
+    let dragged;
+
+    puzzleContainer.addEventListener('dragstart', (event) => {
+        dragged = event.target;
+    });
+
+    puzzleContainer.addEventListener('dragover', (event) => {
+        event.preventDefault();
+    });
+
+    puzzleContainer.addEventListener('drop', (event) => {
+        event.preventDefault();
+        if (event.target.classList.contains('puzzle-piece') && event.target !== dragged) {
+            swapImages(dragged, event.target);
+            if (checkWin()) {
+                winAudio.play();
+            }
+        }
+    });
+
+    // 初始化拼图
+    initPuzzle();
 });
