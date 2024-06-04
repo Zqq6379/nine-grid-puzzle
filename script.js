@@ -67,6 +67,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 触摸事件处理
+    let touchStartX, touchStartY, touchStartElement;
+
+    puzzleContainer.addEventListener('touchstart', (event) => {
+        const touch = event.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchStartElement = document.elementFromPoint(touchStartX, touchStartY);
+    });
+
+    puzzleContainer.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+    });
+
+    puzzleContainer.addEventListener('touchend', (event) => {
+        const touch = event.changedTouches[0];
+        const touchEndX = touch.clientX;
+        const touchEndY = touch.clientY;
+        const touchEndElement = document.elementFromPoint(touchEndX, touchEndY);
+
+        if (touchStartElement && touchEndElement && touchStartElement !== touchEndElement &&
+            touchStartElement.classList.contains('puzzle-piece') &&
+            touchEndElement.classList.contains('puzzle-piece')) {
+            swapImages(touchStartElement, touchEndElement);
+            if (checkWin()) {
+                winAudio.play();
+            }
+        }
+    });
+
     // 初始化拼图
     initPuzzle();
 });
