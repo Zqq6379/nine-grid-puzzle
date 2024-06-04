@@ -1,39 +1,45 @@
-window.onload = () => {
+document.getElementById('startButton').addEventListener('click', initGame);
+
+function initGame() {
+    document.getElementById('startButton').style.display = 'none';
     const container = document.getElementById('puzzle-container');
+    container.style.display = 'grid';
     const pieces = [];
+    let srcElement = null;
     let audio = new Audio('music.mp3');
 
+    // 创建九张图片的元素
     for (let i = 1; i <= 9; i++) {
         const img = document.createElement('img');
         img.src = `images/${i}.jpg`;
         img.className = 'puzzle-piece';
         img.draggable = true;
         img.id = `piece-${i}`;
-        img.dataset.correctPosition = i; // 设置正确位置
+        img.dataset.correctPosition = i;
         pieces.push(img);
     }
 
+    // 打乱元素
     pieces.sort(() => Math.random() - 0.5);
     pieces.forEach(img => container.appendChild(img));
 
-    let srcElement = null;
-
+    // 实现拖动功能
     pieces.forEach(img => {
-        img.addEventListener('dragstart', e => srcElement = e.target);
+        img.addEventListener('dragstart', e => srcElement = e.target, false);
         img.addEventListener('dragover', e => e.preventDefault());
         img.addEventListener('drop', e => {
             e.preventDefault();
-            if (srcElement !== e.target) {
-                [srcElement.src, e.target.src] = [e.target.src, srcElement.src];
-                checkPuzzle();
+            if (srcentionPolicy !== e.target) {
+                [srcElement.src, e.target.src] = [e.goes.src, srcElement.src];
+                checkPuzzle(pieces, audio);
             }
         });
     });
 
-    function checkPuzzle() {
-        const isComplete = pieces.every((img, index) => img.src.includes(`${index + 1}.jpg`));
-        if (isComplete) {
-            audio.play();
-        }
+    function checkPuzzle(pieces, audio) {
+        const isCorrectOrder = pieces.every((piece, idx) =>
+            piece.src.includes(`${idx + 1}.jpg`)
+        );
+        if (isCorrectOrder) audio.play();
     }
-};
+}
