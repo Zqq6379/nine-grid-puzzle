@@ -16,14 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
         shuffle(imageOrder);
         puzzleContainer.innerHTML = '';
         imageOrder.forEach(num => {
-            const img = document.createElement('img');
-            img.src = `images/${num}.jpg`;
-            img.setAttribute('draggable', true);
-            img.setAttribute('data-id', num);
-            img.addEventListener('dragstart', handleDragStart);
-            img.addEventListener('dragover', handleDragOver);
-            img.addEventListener('drop', handleDrop);
-            puzzleContainer.appendChild(img);
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.style.backgroundImage = `url('images/${num}.jpg')`;
+            piece.setAttribute('draggable', true);
+            piece.setAttribute('data-id', num);
+            piece.addEventListener('dragstart', handleDragStart);
+            piece.addEventListener('dragover', handleDragOver);
+            piece.addEventListener('drop', handleDrop);
+            puzzleContainer.appendChild(piece);
         });
     }
 
@@ -44,8 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation(); // Stops some browsers from redirecting.
         e.preventDefault();
         if (dragSrcEl !== this) {
-            dragSrcEl.outerHTML = this.outerHTML;
-            this.outerHTML = e.dataTransfer.getData('text/html');
+            const srcParent = dragSrcEl.parentNode;
+            const tgt = e.currentTarget;
+
+            srcParent.removeChild(dragSrcEl);
+            tgt.parentNode.insertBefore(dragSrcEl, tgt);
+
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            pieces.forEach(piece => {
+                piece.addEventListener('dragstart', handleDragStart);
+                piece.addEventListener('dragover', handleDragOver);
+                piece.addEventListener('drop', handleDrop);
+            });
         }
         checkWin();
         return false;
@@ -53,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 检查是否完成拼图
     function checkWin() {
-        const currentOrder = Array.from(puzzleContainer.children).map(img => parseInt(img.getAttribute('data-id')));
+        const currentOrder = Array.from(puzzleContainer.children).map(piece => parseInt(piece.getAttribute('data-id')));
         if (currentOrder.join('') === '123456789') {
             winAudio.play();
         }
