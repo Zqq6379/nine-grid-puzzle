@@ -12,7 +12,6 @@ body {
     grid-template-columns: repeat(3, 100px);
     grid-template-rows: repeat(3, 100px);
     gap: 5px;
-    position: relative;
 }
 
 .puzzle-piece {
@@ -20,11 +19,4 @@ body {
     height: 100px;
     cursor: pointer;
     user-select: none;
-    position: absolute;
-    transition: transform 0.3s ease;
-}
-
-.dragging {
-    opacity: 0.5;
-    z-index: 1000;
 }
