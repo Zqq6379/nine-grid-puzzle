@@ -12,20 +12,4 @@ body {
     grid-template-columns: repeat(3, 100px);
     grid-template-rows: repeat(3, 100px);
     gap: 5px;
-    position: relative;
-}
-
-.puzzle-piece {
-    width: 100px;
-    height: 100px;
-    cursor: pointer;
-    user-select: none;
-    position: absolute;
-    transition: transform 0.3s ease;
-}
-
-.dragging {
-    opacity: 0.5;
-    z-index: 1000;
-    transition: none; /* 禁用拖动时的过渡效果 */
 }
