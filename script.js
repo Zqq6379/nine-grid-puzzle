@@ -66,5 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 触摸事件处理
+    let touchStartPiece = null;
+
+    puzzleContainer.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        touchStartPiece = document.elementFromPoint(touch.clientX, touch.clientY);
+    });
+
+    puzzleContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+    });
+
+    puzzleContainer.addEventListener('touchend', (e) => {
+        const touch = e.changedTouches[0];
+        const touchEndPiece = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (touchStartPiece && touchEndPiece && touchEndPiece.classList.contains('puzzle-piece')) {
+            swapPieces(touchStartPiece, touchEndPiece);
+            if (checkWin()) {
+                winAudio.play();
+            }
+        }
+        touchStartPiece = null;
+    });
+
     initPuzzle();
 });
