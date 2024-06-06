@@ -67,7 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetIndex = Array.from(puzzleContainer.children).indexOf(event.target);
             swapImages(dragged, event.target);
             if (checkWin()) {
-                winAudio.play();
+                winAudio.play().catch(error => {
+                    console.error('音频播放失败:', error);
+                });
             }
         }
         dragged.classList.remove('dragging');
@@ -103,7 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
             touchEndElement.classList.contains('puzzle-piece')) {
             swapImages(touchStartElement, touchEndElement);
             if (checkWin()) {
-                winAudio.play();
+                winAudio.play().catch(error => {
+                    console.error('音频播放失败:', error);
+                });
             }
         }
         if (touchStartElement) {
