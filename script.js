@@ -15,12 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function initPuzzle() {
         shuffle(imageOrder);
         puzzleContainer.innerHTML = '';
-        imageOrder.forEach(num => {
+        imageOrder.forEach((num, index) => {
             const img = document.createElement('img');
             img.src = `images/${num}.jpg`;
             img.classList.add('puzzle-piece');
             img.draggable = true;
             img.dataset.order = num;
+            img.style.transform = `translate(${(index % 3) * 105}px, ${Math.floor(index / 3) * 105}px)`;
             puzzleContainer.appendChild(img);
         });
     }
@@ -38,19 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 交换图片位置
     function swapImages(img1, img2) {
-        const tempSrc = img1.src;
         const tempOrder = img1.dataset.order;
-        img1.src = img2.src;
         img1.dataset.order = img2.dataset.order;
-        img2.src = tempSrc;
         img2.dataset.order = tempOrder;
+
+        const tempTransform = img1.style.transform;
+        img1.style.transform = img2.style.transform;
+        img2.style.transform = tempTransform;
     }
 
     // 拖放事件处理
-    let dragged;
+    let dragged, draggedIndex;
 
     puzzleContainer.addEventListener('dragstart', (event) => {
         dragged = event.target;
+        draggedIndex = Array.from(puzzleContainer.children).indexOf(dragged);
+        dragged.classList.add('dragging');
     });
 
     puzzleContainer.addEventListener('dragover', (event) => {
@@ -60,21 +64,27 @@ document.addEventListener('DOMContentLoaded', () => {
     puzzleContainer.addEventListener('drop', (event) => {
         event.preventDefault();
         if (event.target.classList.contains('puzzle-piece') && event.target !== dragged) {
+            const targetIndex = Array.from(puzzleContainer.children).indexOf(event.target);
             swapImages(dragged, event.target);
             if (checkWin()) {
                 winAudio.play();
             }
         }
+        dragged.classList.remove('dragging');
     });
 
     // 触摸事件处理
-    let touchStartX, touchStartY, touchStartElement;
+    let touchStartX, touchStartY, touchStartElement, touchStartIndex;
 
     puzzleContainer.addEventListener('touchstart', (event) => {
         const touch = event.touches[0];
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
         touchStartElement = document.elementFromPoint(touchStartX, touchStartY);
+        touchStartIndex = Array.from(puzzleContainer.children).indexOf(touchStartElement);
+        if (touchStartElement.classList.contains('puzzle-piece')) {
+            touchStartElement.classList.add('dragging');
+        }
     });
 
     puzzleContainer.addEventListener('touchmove', (event) => {
@@ -86,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const touchEndX = touch.clientX;
         const touchEndY = touch.clientY;
         const touchEndElement = document.elementFromPoint(touchEndX, touchEndY);
+        const touchEndIndex = Array.from(puzzleContainer.children).indexOf(touchEndElement);
 
         if (touchStartElement && touchEndElement && touchStartElement !== touchEndElement &&
             touchStartElement.classList.contains('puzzle-piece') &&
@@ -94,6 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (checkWin()) {
                 winAudio.play();
             }
+        }
+        if (touchStartElement) {
+            touchStartElement.classList.remove('dragging');
         }
     });
 
