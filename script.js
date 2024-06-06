@@ -67,14 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
     puzzleContainer.addEventListener('drop', (event) => {
         event.preventDefault();
         if (event.target.classList.contains('puzzle-piece') && event.target !== dragged) {
-            const targetIndex = Array.from(puzzleContainer.children).indexOf(event.target);
             swapImages(dragged, event.target);
             if (checkWin()) {
                 winAudio.play();
             }
         }
         dragged.classList.remove('dragging');
-        dragged.style.transform = `translate(${(draggedIndex % 3) * 105}px, ${Math.floor(draggedIndex / 3) * 105}px)`;
     });
 
     document.addEventListener('dragend', (event) => {
