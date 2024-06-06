@@ -1,17 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const puzzleContainer = document.getElementById('puzzle-container');
     const winAudio = document.getElementById('win-audio');
-    const imageOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-    // 用户交互后允许播放音频
-    document.body.addEventListener('click', () => {
-        winAudio.play().then(() => {
-            winAudio.pause();
-            winAudio.currentTime = 0;
-        }).catch(() => {
-            console.log('User interaction required to play audio');
-        });
-    });
+    let imageOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // 随机打乱图片顺序
     function shuffle(array) {
@@ -25,86 +15,49 @@ document.addEventListener('DOMContentLoaded', () => {
     function initPuzzle() {
         shuffle(imageOrder);
         puzzleContainer.innerHTML = '';
-        imageOrder.forEach((num, index) => {
+        imageOrder.forEach(num => {
             const img = document.createElement('img');
             img.src = `images/${num}.jpg`;
-            img.classList.add('puzzle-piece');
-            img.draggable = true;
-            img.dataset.order = num;
-            img.style.transform = `translate(${(index % 3) * 105}px, ${Math.floor(index / 3) * 105}px)`;
+            img.setAttribute('draggable', true);
+            img.setAttribute('data-id', num);
+            img.addEventListener('dragstart', handleDragStart);
+            img.addEventListener('dragover', handleDragOver);
+            img.addEventListener('drop', handleDrop);
             puzzleContainer.appendChild(img);
         });
     }
 
-    // 检查拼图是否完成
+    let dragSrcEl = null;
+
+    function handleDragStart(e) {
+        dragSrcEl = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHTML);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation(); // Stops some browsers from redirecting.
+        e.preventDefault();
+        if (dragSrcEl !== this) {
+            dragSrcEl.outerHTML = this.outerHTML;
+            this.outerHTML = e.dataTransfer.getData('text/html');
+        }
+        checkWin();
+        return false;
+    }
+
+    // 检查是否完成拼图
     function checkWin() {
-        const pieces = document.querySelectorAll('.puzzle-piece');
-        for (let i = 0; i < pieces.length; i++) {
-            if (pieces[i].dataset.order != i + 1) {
-                return false;
-            }
+        const currentOrder = Array.from(puzzleContainer.children).map(img => parseInt(img.getAttribute('data-id')));
+        if (currentOrder.join('') === '123456789') {
+            winAudio.play();
         }
-        console.log('Puzzle completed!'); // 添加调试信息
-        return true;
     }
 
-    // 交换图片位置
-    function swapImages(img1, img2) {
-        const tempOrder = img1.dataset.order;
-        img1.dataset.order = img2.dataset.order;
-        img2.dataset.order = tempOrder;
-
-        const tempTransform = img1.style.transform;
-        img1.style.transform = img2.style.transform;
-        img2.style.transform = tempTransform;
-    }
-
-    // 拖放事件处理
-    let dragged, draggedIndex;
-
-    puzzleContainer.addEventListener('dragstart', (event) => {
-        dragged = event.target;
-        draggedIndex = Array.from(puzzleContainer.children).indexOf(dragged);
-        dragged.classList.add('dragging');
-    });
-
-    puzzleContainer.addEventListener('dragover', (event) => {
-        event.preventDefault();
-    });
-
-    puzzleContainer.addEventListener('drop', (event) => {
-        event.preventDefault();
-        if (event.target.classList.contains('puzzle-piece') && event.target !== dragged) {
-            swapImages(dragged, event.target);
-            if (checkWin()) {
-                console.log('Playing audio...'); // 添加调试信息
-                winAudio.play().catch(error => {
-                    console.error('音频播放失败:', error);
-                });
-            }
-        }
-        dragged.classList.remove('dragging');
-    });
-
-    document.addEventListener('dragend', (event) => {
-        if (dragged) {
-            dragged.classList.remove('dragging');
-        }
-    });
-
-    // 触摸事件处理
-    let touchStartX, touchStartY, touchStartElement, touchStartIndex;
-
-    puzzleContainer.addEventListener('touchstart', (event) => {
-        const touch = event.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchStartElement = document.elementFromPoint(touchStartX, touchStartY);
-        touchStartIndex = Array.from(puzzleContainer.children).indexOf(touchStartElement);
-        if (touchStartElement.classList.contains('puzzle-piece')) {
-            touchStartElement.classList.add('dragging');
-        }
-    });
-
-    puzzleContainer.addEventListener('touchmove', (event) => {
-        event.prevent
+    initPuzzle();
+});
