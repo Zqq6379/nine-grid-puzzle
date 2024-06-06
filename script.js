@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const winAudio = document.getElementById('win-audio');
     const imageOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+    // 用户交互后允许播放音频
+    document.body.addEventListener('click', () => {
+        winAudio.play().catch(() => {
+            console.log('User interaction required to play audio');
+        });
+    });
+
     // 随机打乱图片顺序
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -34,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             }
         }
+        console.log('Puzzle completed!'); // 添加调试信息
         return true;
     }
 
@@ -66,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.classList.contains('puzzle-piece') && event.target !== dragged) {
             swapImages(dragged, event.target);
             if (checkWin()) {
+                console.log('Playing audio...'); // 添加调试信息
                 winAudio.play().catch(error => {
                     console.error('音频播放失败:', error);
                 });
@@ -110,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             touchEndElement.classList.contains('puzzle-piece')) {
             swapImages(touchStartElement, touchEndElement);
             if (checkWin()) {
+                console.log('Playing audio...'); // 添加调试信息
                 winAudio.play().catch(error => {
                     console.error('音频播放失败:', error);
                 });
