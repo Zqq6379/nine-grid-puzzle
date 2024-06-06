@@ -107,10 +107,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     puzzleContainer.addEventListener('touchmove', (event) => {
-        event.preventDefault();
-    });
-
-    puzzleContainer.addEventListener('touchend', (event) => {
-        const touch = event.changedTouches[0];
-        const touchEndX = touch.clientX;
-        const touchEndY = touch.clientY;
+        event.prevent
