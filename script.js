@@ -49,14 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 拖放事件处理
-    let dragged, draggedIndex, offsetX, offsetY;
+    let dragged, draggedIndex;
 
     puzzleContainer.addEventListener('dragstart', (event) => {
         dragged = event.target;
         draggedIndex = Array.from(puzzleContainer.children).indexOf(dragged);
-        const rect = dragged.getBoundingClientRect();
-        offsetX = event.clientX - rect.left;
-        offsetY = event.clientY - rect.top;
         dragged.classList.add('dragging');
     });
 
@@ -78,13 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('dragend', (event) => {
         if (dragged) {
             dragged.classList.remove('dragging');
-            dragged.style.transform = `translate(${(draggedIndex % 3) * 105}px, ${Math.floor(draggedIndex / 3) * 105}px)`;
-        }
-    });
-
-    document.addEventListener('drag', (event) => {
-        if (dragged) {
-            dragged.style.transform = `translate(${event.clientX - offsetX}px, ${event.clientY - offsetY}px)`;
         }
     });
 
@@ -98,19 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
         touchStartElement = document.elementFromPoint(touchStartX, touchStartY);
         touchStartIndex = Array.from(puzzleContainer.children).indexOf(touchStartElement);
         if (touchStartElement.classList.contains('puzzle-piece')) {
-            const rect = touchStartElement.getBoundingClientRect();
-            offsetX = touch.clientX - rect.left;
-            offsetY = touch.clientY - rect.top;
             touchStartElement.classList.add('dragging');
         }
     });
 
     puzzleContainer.addEventListener('touchmove', (event) => {
         event.preventDefault();
-        const touch = event.touches[0];
-        if (touchStartElement) {
-            touchStartElement.style.transform = `translate(${touch.clientX - offsetX}px, ${touch.clientY - offsetY}px)`;
-        }
     });
 
     puzzleContainer.addEventListener('touchend', (event) => {
@@ -130,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (touchStartElement) {
             touchStartElement.classList.remove('dragging');
-            touchStartElement.style.transform = `translate(${(touchStartIndex % 3) * 105}px, ${Math.floor(touchStartIndex / 3) * 105}px)`;
         }
     });
 
