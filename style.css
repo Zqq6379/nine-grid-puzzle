@@ -17,8 +17,6 @@ body {
 .puzzle-piece {
     width: 100px;
     height: 100px;
-    border: 1px solid #ddd; /* 可选，为了更好地区分各个拼图块 */
-    box-sizing: border-box;
-    background-size: cover;
-    background-position: center;
+    cursor: pointer;
+    user-select: none;
 }
