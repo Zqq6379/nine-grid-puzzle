@@ -114,25 +114,3 @@ document.addEventListener('DOMContentLoaded', () => {
         const touch = event.changedTouches[0];
         const touchEndX = touch.clientX;
         const touchEndY = touch.clientY;
-        const touchEndElement = document.elementFromPoint(touchEndX, touchEndY);
-        const touchEndIndex = Array.from(puzzleContainer.children).indexOf(touchEndElement);
-
-        if (touchStartElement && touchEndElement && touchStartElement !== touchEndElement &&
-            touchStartElement.classList.contains('puzzle-piece') &&
-            touchEndElement.classList.contains('puzzle-piece')) {
-            swapImages(touchStartElement, touchEndElement);
-            if (checkWin()) {
-                console.log('Playing audio...'); // 添加调试信息
-                winAudio.play().catch(error => {
-                    console.error('音频播放失败:', error);
-                });
-            }
-        }
-        if (touchStartElement) {
-            touchStartElement.classList.remove('dragging');
-        }
-    });
-
-    // 初始化拼图
-    initPuzzle();
-});
