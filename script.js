@@ -5,7 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 用户交互后允许播放音频
     document.body.addEventListener('click', () => {
-        winAudio.play().catch(() => {
+        winAudio.play().then(() => {
+            winAudio.pause();
+            winAudio.currentTime = 0;
+        }).catch(() => {
             console.log('User interaction required to play audio');
         });
     });
