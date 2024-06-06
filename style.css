@@ -27,4 +27,5 @@ body {
 .dragging {
     opacity: 0.5;
     z-index: 1000;
+    transition: none; /* 禁用拖动时的过渡效果 */
 }
